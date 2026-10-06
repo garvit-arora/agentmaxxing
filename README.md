@@ -167,6 +167,7 @@ Payments are cryptographically signed but **not submitted on-chain** — a demo,
 | `AZURE_OPENAI_API_KEY` | ✅ | — | Azure OpenAI key |
 | `AZURE_OPENAI_DEPLOYMENT` | ✅ | — | Deployment name, e.g. `gpt-4o` |
 | `AZURE_OPENAI_API_VERSION` | No | `2024-12-01-preview` | Azure OpenAI API version |
+| `AZURE_OPENAI_REASONING_EFFORT` | No | `none` | Reasoning effort for reasoning models — keep `none` so function tools work (e.g. gpt-6-sol rejects tools otherwise) |
 | `WALLET_PRIVATE_KEY` | No | — | Reuse an existing test wallet (`0x…`), overrides `.agent-wallet.json` |
 
 ## ❓ Troubleshooting
@@ -175,6 +176,7 @@ Payments are cryptographically signed but **not submitted on-chain** — a demo,
 |---------|----------|
 | Page asks for Azure credentials | Fill `.env`, restart `npm run dev` |
 | Model/auth error in chat | Verify endpoint URL (trailing `/`), key, deployment name, API version |
+| `Function tools with reasoning_effort are not supported` | Set `AZURE_OPENAI_REASONING_EFFORT=none` in `.env` (default), restart server |
 | Agent ignores my new tool | Make `description` more specific about *when* to use it, restart server |
 | Weather fails with "no wallet yet" | Click **Create wallet** first |
 | Port 3000 in use | `npm run dev -- -p 3001` |

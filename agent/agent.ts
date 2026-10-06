@@ -13,6 +13,13 @@ import type { ChatCompletionMessageParam } from "openai/resources/chat/completio
 export const MODEL = process.env.AZURE_OPENAI_DEPLOYMENT || "not-configured";
 const MAX_STEPS = 8;
 
+// Reasoning models (e.g. gpt-6-sol) reject function tools on /v1/chat/completions
+// unless reasoning is disabled: "Function tools with reasoning_effort are not
+// supported ... set reasoning_effort to 'none'". Default to "none" so tools work
+// out of the box; override with AZURE_OPENAI_REASONING_EFFORT=low|medium|high
+// (or empty to omit the parameter) if your deployment supports tools + reasoning.
+const REASONING_EFFORT = (process.env.AZURE_OPENAI_REASONING_EFFORT ?? "none").trim();
+
 const SYSTEM_PROMPT =
   "You are a helpful AI agent with your own crypto wallet, acting as a team of experts: " +
   "a software ENGINEER (writes clean code via write_file/read_file/list_files), " +
@@ -70,6 +77,9 @@ export async function runAgent(history: ChatMessage[], ctx: { baseUrl: string })
       messages,
       tools: openAiTools,
       tool_choice: "auto",
+      // Cast: Azure accepts 'none' at runtime (required for function tools on
+      // reasoning models like gpt-6-sol), but this SDK version only types low|medium|high.
+      ...(REASONING_EFFORT ? { reasoning_effort: REASONING_EFFORT as unknown as "low" } : {}),
     });
 
     const choice = completion.choices[0]?.message;
